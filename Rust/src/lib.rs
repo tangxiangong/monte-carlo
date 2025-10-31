@@ -1,12 +1,22 @@
-use fastrand::Rng;
+fn rand() -> (f64, f64) {
+    #[cfg(feature = "fastrand")]
+    {
+        use fastrand::Rng;
+        let mut rng = Rng::new();
+        (rng.f64(), rng.f64())
+    }
+    #[cfg(feature = "rand")]
+    {
+        use rand::Rng;
+        let mut rng = rand::thread_rng();
+        (rng.random::<f64>(), rng.random::<f64>())
+    }
+}
 
 pub fn simulate_pi_seq(particles: usize) -> f64 {
     let mut inside_circle = 0;
-    let mut rng = Rng::new();
-
     (0..particles).for_each(|_| {
-        let x: f64 = rng.f64();
-        let y: f64 = rng.f64();
+        let (x, y) = rand();
         if x * x + y * y <= 1.0 {
             inside_circle += 1;
         }
@@ -26,11 +36,8 @@ pub fn simulate_pi_par(particles: usize) -> f64 {
                 let end = (start + chunk_size).min(particles);
                 s.spawn(move || {
                     let mut local_inside = 0;
-                    let mut rng = Rng::new();
-
                     (start..end).for_each(|_| {
-                        let x: f64 = rng.f64();
-                        let y: f64 = rng.f64();
+                        let (x, y) = rand();
                         if x * x + y * y <= 1.0 {
                             local_inside += 1;
                         }

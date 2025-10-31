@@ -3,6 +3,10 @@ name = "montecarlo"
 version = "0.1.0"
 edition = "2024"
 
+[features]
+default = ["fastrand"]
+
 [dependencies]
 num_cpus = "1"
-fastrand = "2"
+rand = { version = "0.9", optional = true }
+fastrand = { version = "2", optional = true }
