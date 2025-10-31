@@ -8,8 +8,11 @@ int main() {
     size_t particles = 10000000;
     size_t bench_size = 10;
     std::println("Benchmarking sequential Monte Carlo Pi simulation with {} particles:", particles);
-    bench([=](){ return simulate_pi(particles, false); }, bench_size);
+    auto results = bench([=](){ return simulate_pi(particles, false); }, bench_size);
+    std::println("result: {}", results);
+
     std::println("Benchmarking parallel Monte Carlo Pi simulation with {} particles, {} threads:", particles, number_of_threads);
-    bench([=](){ return simulate_pi(particles); }, bench_size);
+    results = bench([=](){ return simulate_pi(particles); }, bench_size);
+    std::println("result: {}", results);
     return 0;
 }

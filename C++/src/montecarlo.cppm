@@ -14,10 +14,9 @@ export module montecarlo;
 
 constexpr double NANOSECONDS_PER_SECOND = 1000000000.0;
 
-export template<typename F>
+export template<typename F, typename R = std::conditional_t<std::is_void_v<std::invoke_result_t<F>>, int, std::invoke_result_t<F>>>
 requires std::invocable<F>
-void bench(F func, size_t bench_size) {
-    using R = std::conditional_t<std::is_void_v<std::invoke_result_t<F>>, int, std::invoke_result_t<F>>;
+std::vector<R> bench(F func, size_t bench_size) {
     std::vector<double> times(bench_size);
     std::vector<R> results(bench_size);
 
@@ -34,8 +33,6 @@ void bench(F func, size_t bench_size) {
         auto elapsed = static_cast<double>(duration.count()) / NANOSECONDS_PER_SECOND;
         val = elapsed;
     }
-    std::println("result: {}", results);
-
     double mean = std::accumulate(times.begin(), times.end(), 0.0) / times.size();
     double stddev = std::sqrt(std::accumulate(times.begin(), times.end(), 0.0, [mean](double acc, double x) {
         return acc + ((x - mean) * (x - mean));
@@ -44,6 +41,7 @@ void bench(F func, size_t bench_size) {
     double max = *std::ranges::max_element(times);
 
     std::println("mean: {:.4f}s, stddev: {:.4f}, min: {:.4f}s, max: {:.4f}s", mean, stddev, min, max);
+    return results;
 }
 
 double simulate_pi_seq(size_t particles) {
